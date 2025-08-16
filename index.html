@@ -1,87 +1,197 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Прайс УграРемКомп</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    #searchBox {
-      display: block;
-      margin: 15px auto;
-      padding: 10px;
-      width: 50%;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      background: #fff;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background: #f1f1f1;
-    }
-    tr:hover {
-      background: #f9f9f9;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Прайс с поиском — УграРемКомп</title>
+<style>
+  :root{
+    --bg:#f6f7f9;--card:#fff;--text:#111;--muted:#6b7280;--line:#e5e7eb;--chip:#eef2ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px}
+  h1{margin:0 0 12px;font-size:22px}
+  .panel{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 16px}
+  .panel input,.panel select,.panel button{
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px
+  }
+  .panel input[type="number"]{width:120px}
+  .panel input[type="text"]{min-width:260px;flex:1}
+  .panel button{cursor:pointer}
+  .stats{margin-left:auto;font-size:12px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-weight:600;background:#fafafa;user-select:none;cursor:pointer}
+  th[data-k]{white-space:nowrap}
+  td.price{text-align:right;white-space:nowrap}
+  .muted{color:var(--muted)}
+  .chip{display:inline-block;padding:3px 8px;border-radius:999px;background:var(--chip);font-size:12px}
+  mark{background:#fff1a8;padding:0 .18em;border-radius:.2em}
+  .foot{padding:10px}
+  @media (max-width:700px){
+    th:nth-child(3),td:nth-child(3){display:none} /* описание прячем на мобиле */
+  }
+</style>
 </head>
 <body>
-  <h1>Прайс УграРемКомп</h1>
-  <input type="text" id="searchBox" placeholder="Поиск по услугам или ценам...">
+<div class="wrap">
+  <h1>Поиск по ценам — УграРемКомп</h1>
 
-  <table id="priceTable">
-    <thead>
-      <tr>
-        <th>Услуга</th>
-        <th>Цена (₽)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>Замена дисплея iPhone 11</td><td>4500</td></tr>
-      <tr><td>Замена аккумулятора iPhone 11</td><td>2500</td></tr>
-      <tr><td>Замена дисплея Samsung A51</td><td>4000</td></tr>
-      <tr><td>Замена аккумулятора Samsung A51</td><td>2300</td></tr>
-      <tr><td>Замена стекла Xiaomi Redmi Note 10</td><td>2800</td></tr>
-      <tr><td>Чистка системы охлаждения ноутбука</td><td>1500</td></tr>
-      <tr><td>Установка Windows 10/11</td><td>1200</td></tr>
-      <tr><td>Замена разъёма зарядки</td><td>1800</td></tr>
-    </tbody>
-  </table>
+  <div class="panel card">
+    <input id="q" type="text" placeholder="Поиск: бренд / услуга / описание">
+    <select id="brand">
+      <option value="">Все бренды</option>
+    </select>
+    <select id="cat">
+      <option value="">Все категории</option>
+    </select>
+    <input id="minp" type="number" inputmode="numeric" placeholder="от ₽">
+    <input id="maxp" type="number" inputmode="numeric" placeholder="до ₽">
+    <button id="apply">Фильтр</button>
+    <button id="reset">Сброс</button>
+    <div class="stats" id="stats">Найдено: 0 из 0</div>
+  </div>
 
-  <script>
-    const searchBox = document.getElementById("searchBox");
-    const table = document.getElementById("priceTable").getElementsByTagName("tbody")[0];
+  <div class="card">
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th data-k="brand">Бренд</th>
+          <th data-k="category">Категория</th>
+          <th data-k="title">Услуга</th>
+          <th data-k="price" style="text-align:right;">Цена, от</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="foot muted">Клик по заголовку — сортировка. Цены «от ₽» — ориентировочные.</div>
+  </div>
+</div>
 
-    searchBox.addEventListener("keyup", function() {
-      const filter = searchBox.value.toLowerCase();
-      const rows = table.getElementsByTagName("tr");
-      for (let i = 0; i < rows.length; i++) {
-        const cols = rows[i].getElementsByTagName("td");
-        let match = false;
-        for (let j = 0; j < cols.length; j++) {
-          if (cols[j].textContent.toLowerCase().includes(filter)) {
-            match = true;
-            break;
-          }
-        }
-        rows[i].style.display = match ? "" : "none";
-      }
+<script>
+/* ==== ДАННЫЕ (редактируй здесь) ==== */
+const DATA = [
+  // Смартфоны — общие
+  {brand:'Разные', category:'Смартфоны', title:'Замена экрана (LCD/OLED) — модуль в сборе', desc:'Полная замена дисплейного модуля', price:1500},
+  {brand:'Разные', category:'Смартфоны', title:'Замена сенсорного стекла', desc:'Только если доступно отдельно стекло', price:1200},
+  {brand:'Разные', category:'Смартфоны', title:'Замена аккумулятора', desc:'Оригинал/аналог под модель', price:1000},
+  {brand:'Разные', category:'Смартфоны', title:'Замена разъёма зарядки (пайка/модуль)', desc:'USB Type-C / Lightning / microUSB', price:1000},
+  {brand:'Разные', category:'Смартфоны', title:'Замена слухового динамика', desc:'Плохо слышно в разговоре', price:1000},
+  {brand:'Разные', category:'Смартфоны', title:'Замена полифонического динамика', desc:'Нет звука уведомлений/звонка', price:1000},
+  {brand:'Разные', category:'Смартфоны', title:'Замена микрофона', desc:'Не работает запись/голосовой ввод', price:1000},
+  {brand:'Разные', category:'Смартфоны', title:'Замена камеры (задняя/фронтальная)', desc:'Модуль камеры', price:1000},
+  {brand:'Разные', category:'Смартфоны', title:'Замена кнопок (Питание/Громкость/Home)', desc:'Шлейф/кнопка', price:1000},
+  {brand:'Разные', category:'Смартфоны', title:'Ремонт системной платы (пайка)', desc:'Обрыв цепей, замыкание', price:2500},
+  {brand:'Разные', category:'Смартфоны', title:'Восстановление после воды', desc:'Чистка, сушка, диагностика', price:2500},
+
+  // Примеры по брендам
+  {brand:'Apple', category:'Смартфоны', title:'iPhone 11 — замена дисплея (модуль)', desc:'IPS модуль', price:7500},
+  {brand:'Apple', category:'Смартфоны', title:'iPhone 11 — замена аккумулятора', desc:'Оригинал/аналог', price:3500},
+  {brand:'Apple', category:'Смартфоны', title:'iPhone XR — замена дисплея', desc:'модуль', price:6800},
+
+  {brand:'Samsung', category:'Смартфоны', title:'Galaxy A51 — замена дисплея (модуль)', desc:'Super AMOLED', price:6000},
+  {brand:'Samsung', category:'Смартфоны', title:'Galaxy A51 — замена аккумулятора', desc:'', price:2800},
+  {brand:'Samsung', category:'Смартфоны', title:'Galaxy A52 — замена дисплея', desc:'', price:7500},
+
+  {brand:'Xiaomi', category:'Смартфоны', title:'Redmi Note 9 — замена стекла', desc:'Локальная переклейка', price:4000},
+  {brand:'Xiaomi', category:'Смартфоны', title:'Redmi Note 9 — замена аккумулятора', desc:'', price:2500},
+  {brand:'Xiaomi', category:'Смартфоны', title:'Mi 11 — замена дисплея', desc:'AMOLED', price:11000},
+
+  // Ноутбуки / ПК
+  {brand:'Ноутбуки', category:'Ноутбуки', title:'Чистка охлаждения + замена термопасты', desc:'Полная разборка, чистка, сборка', price:1500},
+  {brand:'Ноутбуки', category:'Ноутбуки', title:'Замена клавиатуры', desc:'Модуль/подложка', price:2000},
+  {brand:'Ноутбуки', category:'Ноутбуки', title:'Замена разъёма питания (пайка)', desc:'DC-jack', price:2200},
+  {brand:'Ноутбуки', category:'Ноутбуки', title:'Установка Windows 10/11', desc:'С драйверами и базовой настройкой', price:1200},
+  {brand:'ПК', category:'Компьютеры', title:'Диагностика ПК/ноутбука', desc:'При согласии на ремонт — бесплатно', price:0},
+  {brand:'ПК', category:'Компьютеры', title:'Замена/установка SSD/HDD', desc:'С переносом данных при возможности', price:800},
+];
+/* ================================= */
+
+const st = { q:'', brand:'', cat:'', min:null, max:null, sort:{k:'price',dir:1}, view:[], rows:[] };
+const $ = (s, r=document)=>r.querySelector(s);
+const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+const tb = $('#tbl tbody');
+const stats = $('#stats');
+
+const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const rub = n => (n??0).toLocaleString('ru-RU')+' ₽';
+function mark(text,q){ if(!q) return esc(text); const re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'); return esc(text).replace(re,m=>`<mark>${m}</mark>`); }
+
+function apply(){
+  st.q = $('#q').value.trim().toLowerCase();
+  st.brand = $('#brand').value.trim();
+  st.cat = $('#cat').value.trim();
+  st.min = $('#minp').value ? Number($('#minp').value) : null;
+  st.max = $('#maxp').value ? Number($('#maxp').value) : null;
+  filterSortRender();
+}
+function resetAll(){
+  ['q','brand','cat','minp','maxp'].forEach(id=>$('#'+id).value='');
+  st.q=''; st.brand=''; st.cat=''; st.min=null; st.max=null; st.sort={k:'price',dir:1};
+  filterSortRender();
+}
+
+function filterSortRender(){
+  const q = st.q;
+  const filtered = DATA.filter(x=>{
+    if(st.brand && x.brand!==st.brand) return false;
+    if(st.cat && x.category!==st.cat) return false;
+    if(st.min!=null && x.price < st.min) return false;
+    if(st.max!=null && x.price > st.max) return false;
+    if(q){
+      const t=(x.brand+' '+x.category+' '+x.title+' '+(x.desc||'')).toLowerCase();
+      if(!t.includes(q)) return false;
+    }
+    return true;
+  });
+  st.view = filtered.slice().sort((a,b)=>{
+    const {k,dir}=st.sort;
+    if(k==='price') return dir*(a.price-b.price);
+    return dir*String(a[k]).localeCompare(String(b[k]),'ru');
+  });
+  render();
+}
+
+function render(){
+  tb.innerHTML = st.view.map(x=>`
+    <tr>
+      <td><span class="chip">${esc(x.brand)}</span></td>
+      <td>${esc(x.category)}</td>
+      <td>${mark(x.title+(x.desc? ' — '+x.desc:''), st.q)}</td>
+      <td class="price">${rub(x.price)}</td>
+    </tr>`).join('') || `<tr><td colspan="4" class="muted" style="text-align:center;padding:18px">Ничего не найдено</td></tr>`;
+  stats.textContent = `Найдено: ${st.view.length} из ${DATA.length}`;
+}
+
+function attachSort(){
+  $$('th[data-k]').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const k = th.dataset.k;
+      if(st.sort.k===k){ st.sort.dir*=-1 } else { st.sort={k,dir:1} }
+      filterSortRender();
     });
-  </script>
+  });
+}
+
+function init(){
+  // заполняем списки брендов/категорий из DATA
+  const brands=[...new Set(DATA.map(x=>x.brand))].sort();
+  const cats=[...new Set(DATA.map(x=>x.category))].sort();
+  brands.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; $('#brand').appendChild(o); });
+  cats.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; $('#cat').appendChild(o); });
+
+  $('#apply').addEventListener('click', apply);
+  $('#reset').addEventListener('click', resetAll);
+  $('#q').addEventListener('input', apply);
+  $('#minp').addEventListener('change', apply);
+  $('#maxp').addEventListener('change', apply);
+  attachSort();
+  filterSortRender();
+}
+init();
+</script>
 </body>
+</html>
 </html>
