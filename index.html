@@ -1,222 +1,236 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Прайс с поиском — УграРемКомп</title>
+<title>Прайс УграРемКомп — поиск и фильтры</title>
 <style>
-  :root{--bg:#f6f7f9;--card:#fff;--text:#111;--muted:#6b7280;--line:#e5e7eb;--chip:#eef2ff}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-  .wrap{max-width:1100px;margin:0 auto;padding:20px}
-  h1{margin:0 0 12px;font-size:22px}
-  .panel{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 16px}
-  .panel input,.panel select,.panel button{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
-  .panel input[type="number"]{width:120px}
-  .panel input[type="text"]{min-width:260px;flex:1}
-  .panel button{cursor:pointer}
-  .stats{margin-left:auto;font-size:12px;color:var(--muted)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-  th{font-weight:600;background:#fafafa;user-select:none;cursor:pointer}
-  th[data-k]{white-space:nowrap}
-  td.price{text-align:right;white-space:nowrap}
-  .muted{color:var(--muted)}
-  .chip{display:inline-block;padding:3px 8px;border-radius:999px;background:var(--chip);font-size:12px}
-  mark{background:#fff1a8;padding:0 .18em;border-radius:.2em}
-  .foot{padding:10px}
-  @media (max-width:700px){
-    th:nth-child(3),td:nth-child(3){display:none} /* описание прячем на мобиле */
+  :root{
+    --bg:#f6f7f9;--card:#fff;--text:#111;--muted:#6b7280;--line:#e5e7eb;
+    --accent:#0ea5e9;--accent2:#0369a1;--ok:#16a34a;--warn:#ef4444
   }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px}
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+  h1{margin:0;font-size:clamp(22px,4.5vw,38px)}
+  .call{display:inline-flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--ok);color:#fff;text-decoration:none;font-weight:700}
+  .panel{display:grid;gap:10px;grid-template-columns:1.2fr 1fr 1fr .8fr .8fr auto auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+  .panel input,.panel select,.panel button{height:42px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .btn{background:var(--accent);color:#fff;border:none;font-weight:700;cursor:pointer}
+  .btn:hover{background:var(--accent2)}
+  .ghost{background:#fff;border:1px solid var(--line)}
+  .stats{grid-column:1/-1;color:var(--muted);font-size:13px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:12px;overflow:auto}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#fafafa;text-align:left;position:sticky;top:0}
+  th.sortable{user-select:none;cursor:pointer}
+  th.sortable::after{content:" ⇅";opacity:.4}
+  th.sortable[data-dir="1"]::after{content:" ↑";opacity:1}
+  th.sortable[data-dir="-1"]::after{content:" ↓";opacity:1}
+  td.price{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  td.note{color:var(--muted);font-size:12px}
+  tr:hover{background:#fcfcfc}
+  .err{margin-top:12px;padding:12px;border:1px solid #fecaca;background:#fff1f2;color:#991b1b;border-radius:10px}
+  .wa{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);text-decoration:none}
+  .wa:hover{border-color:var(--accent2)}
+  @media (max-width:980px){.panel{grid-template-columns:1fr 1fr 1fr;grid-auto-rows:auto}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Поиск по ценам — УграРемКомп</h1>
+  <header>
+    <h1>Прайс УграРемКомп</h1>
+    <a class="call" href="tel:+79107116072">📞 Позвонить</a>
+  </header>
 
-  <div class="panel card">
-    <input id="q" type="text" placeholder="Поиск: бренд / услуга / описание">
+  <!-- Панель фильтров -->
+  <div class="panel">
+    <input id="q" placeholder="Поиск (бренд, категория, наименование, примечание, цена)">
     <select id="brand"><option value="">Все бренды</option></select>
     <select id="cat"><option value="">Все категории</option></select>
     <input id="minp" type="number" inputmode="numeric" placeholder="от ₽">
     <input id="maxp" type="number" inputmode="numeric" placeholder="до ₽">
-    <button id="apply">Фильтр</button>
-    <button id="reset">Сброс</button>
-    <div class="stats" id="stats">Найдено: 0 из 0</div>
+    <button id="apply" class="btn">Фильтр</button>
+    <button id="reset" class="ghost">Сброс</button>
+    <div class="stats" id="stats"></div>
   </div>
 
+  <!-- Таблица -->
   <div class="card">
     <table id="tbl">
       <thead>
         <tr>
-          <th data-k="brand">Бренд</th>
-          <th data-k="category">Категория</th>
-          <th data-k="title">Услуга</th>
-          <th data-k="price" style="text-align:right;">Цена, от</th>
+          <th class="sortable" data-k="brand">Бренд</th>
+          <th class="sortable" data-k="cat">Категория</th>
+          <th class="sortable" data-k="name">Наименование</th>
+          <th class="sortable price" data-k="price">Цена, от</th>
+          <th>Действие</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-    <div class="foot muted">Клик по заголовку — сортировка. Цены «от ₽» — ориентировочные.</div>
   </div>
+
+  <div id="error" class="err" style="display:none"></div>
 </div>
 
 <script>
-/* ======= НАСТРОЙКА CSV (твоя ссылка Google Sheets) ======= */
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQWvp61TLX1tVmw7o34TY2Qjde4r-343ELRv14YnbrkSC0z7MAQse2lFVzWk2HcePyCfRfEIQ4jVh09/pub?gid=0&single=true&output=csv';
+/* === НАСТРОЙКИ === */
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWvp61TLX1tVmw7o34TY2Qjde4r-343ELRv14YnbrkSC0z7MAQse2lFVzWk2HcePyCfRfEIQ4jVh09/pub?gid=0&single=true&output=csv";
+const WA_PHONE = "79107116072"; // для кнопки WhatsApp
 
-/* ======= РЕЗЕРВНЫЕ ДАННЫЕ (если CSV недоступен) ======= */
-const FALLBACK = [
-  {brand:'Разные',category:'Смартфоны',title:'Замена экрана (LCD/OLED) — модуль в сборе',desc:'Полная замена дисплейного модуля',price:1500},
-  {brand:'Apple',category:'Смартфоны',title:'iPhone 11 — замена дисплея (модуль)',desc:'IPS модуль',price:7500},
-  {brand:'Samsung',category:'Смартфоны',title:'Galaxy A51 — замена аккумулятора',desc:'',price:2800},
-  {brand:'Ноутбуки',category:'Ноутбуки',title:'Чистка охлаждения + термопаста',desc:'',price:1500},
-];
-
-/* ======= СОСТОЯНИЕ ======= */
-const st = { q:'', brand:'', cat:'', min:null, max:null, sort:{k:'price',dir:1}, view:[], rows:[] };
+/* === УТИЛИТЫ === */
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
-const tb = $('#tbl tbody');
-const stats = $('#stats');
+const esc = s => String(s??'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+const toNum = v => {
+  if (typeof v==='number') return v;
+  const s=String(v||'').replace(/[^\d.,-]/g,'').replace(/\.(?=.*\.)/g,'').replace(',','.');
+  const n=Number(s); return Number.isFinite(n) ? n : NaN;
+};
+const waLink = txt => `https://wa.me/${WA_PHONE}?text=${encodeURIComponent('Здравствуйте! Интересует: ' + txt)}`;
 
-const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-const rub = n => (n??0).toLocaleString('ru-RU')+' ₽';
-function mark(text,q){ if(!q) return esc(text); const re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'); return esc(text).replace(re,m=>`<mark>${m}</mark>`); }
-
-/* ======= CSV PARSER ======= */
+/* === CSV-парсер (кавычки, запятые внутри) === */
 function parseCSV(text){
-  const rows=[]; let i=0, cur='', row=[], q=false;
-  const push=()=>{row.push(cur);cur=''};
-  const end=()=>{push();rows.push(row);row=[]};
-  while(i<text.length){
-    const c=text[i++];
-    if(q){
-      if(c=='"' && text[i]=='"'){cur+='"';i++;} else if(c=='"'){q=false;} else {cur+=c;}
-    }else{
-      if(c=='"'){q=true;}
-      else if(c==','){push();}
-      else if(c=='\n'){end();}
+  const out=[]; let row=[], cur="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i], n=text[i+1];
+    if(q){ if(c=='"'&&n=='"'){cur+='"';i++;} else if(c=='"'){q=false;} else cur+=c; }
+    else{ if(c=='"'){q=true;} else if(c==','){row.push(cur);cur="";}
+      else if(c=='\n'){row.push(cur);out.push(row);row=[];cur="";}
       else if(c!='\r'){cur+=c;}
     }
   }
-  if(cur.length||row.length) end();
-  return rows;
-}
-function csvToObjects(rows){
-  if(!rows.length) return [];
-  const head = rows[0].map(s=>s.trim().toLowerCase());
-  const idx = {
-    brand: head.indexOf('brand'),
-    category: head.indexOf('cat')>-1? head.indexOf('cat') : head.indexOf('category'),
-    title: head.indexOf('name'),
-    price: head.indexOf('price'),
-    desc: head.indexOf('note')
-  };
-  const out=[];
-  for(let r=1;r<rows.length;r++){
-    const x=rows[r];
-    if(!x || !x.length) continue;
-    const obj={
-      brand: x[idx.brand]||'',
-      category: x[idx.category]||'',
-      title: x[idx.title]||'',
-      price: Number(String(x[idx.price]||'').replace(/\s/g,''))||0,
-      desc: x[idx.desc]||''
-    };
-    if(obj.title) out.push(obj);
-  }
+  row.push(cur); out.push(row);
+  if(out.length && out[out.length-1].every(v=>v==="")) out.pop();
   return out;
 }
 
-/* ======= Загрузка данных ======= */
+/* === Состояние === */
+const st={rows:[],view:[],sort:{k:'price',dir:1},q:'',brand:'',cat:'',min:null,max:null};
+
+/* === Загрузка данных === */
 async function loadData(){
   try{
-    const res = await fetch(CSV_URL,{cache:'no-store'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const txt = await res.text();
-    const arr = csvToObjects(parseCSV(txt));
-    st.rows = arr.length ? arr : FALLBACK;
+    const r = await fetch(CSV_URL,{cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const txt = await r.text();
+    const rows = parseCSV(txt);
+    if(!rows.length) throw new Error('CSV пуст');
+
+    // ожидаемые русские заголовки
+    const hdr = rows[0].map(s=>String(s).trim().toLowerCase());
+    const m = {
+      brand: hdr.indexOf('бренд'),
+      cat:   hdr.indexOf('категория'),
+      name:  hdr.indexOf('наименование'),
+      price: hdr.indexOf('цена'),
+      note:  hdr.indexOf('примечание')
+    };
+    if([m.brand,m.cat,m.name,m.price].some(i=>i<0)){
+      throw new Error('В CSV нужны заголовки: Бренд, Категория, Наименование, Цена (+ Примечание по желанию)');
+    }
+
+    st.rows = rows.slice(1)
+      .filter(r=>r.some(x=>String(x).trim()!==''))
+      .map(r=>({
+        brand: String(r[m.brand]||'').trim(),
+        cat:   String(r[m.cat]||'').trim(),
+        name:  String(r[m.name]||'').trim(),
+        price: toNum(r[m.price]),
+        note:  String(r[m.note]||'').trim()
+      }))
+      .filter(x=>x.name);
+
+    buildFilters(st.rows);
+    applyFilters();
   }catch(e){
-    st.rows = FALLBACK;
+    $('#error').style.display='';
+    $('#error').textContent='Ошибка загрузки прайса: '+e.message;
   }
-  initFilters();
-  filterSortRender();
 }
 
-/* ======= UI/Фильтры/Сортировка/Рендер ======= */
-function apply(){
-  st.q = $('#q').value.trim().toLowerCase();
-  st.brand = $('#brand').value.trim();
-  st.cat = $('#cat').value.trim();
-  st.min = $('#minp').value ? Number($('#minp').value) : null;
-  st.max = $('#maxp').value ? Number($('#maxp').value) : null;
-  filterSortRender();
+/* === Фильтры (автосписки из данных) === */
+function buildFilters(rows){
+  const brands=[...new Set(rows.map(x=>x.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
+  const cats  =[...new Set(rows.map(x=>x.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
+  const brandSel = $('#brand'), catSel = $('#cat');
+  for(const v of brands){ const o=document.createElement('option'); o.textContent=v; brandSel.appendChild(o); }
+  for(const v of cats){ const o=document.createElement('option'); o.textContent=v; catSel.appendChild(o); }
 }
-function resetAll(){
-  ['q','brand','cat','minp','maxp'].forEach(id=>$('#'+id).value='');
-  st.q=''; st.brand=''; st.cat=''; st.min=null; st.max=null; st.sort={k:'price',dir:1};
-  filterSortRender();
-}
-function filterSortRender(){
-  const q = st.q;
-  const filtered = st.rows.filter(x=>{
-    if(st.brand && x.brand!==st.brand) return false;
-    if(st.cat && x.category!==st.cat) return false;
-    if(st.min!=null && x.price < st.min) return false;
-    if(st.max!=null && x.price > st.max) return false;
+
+/* === Применение фильтров и сортировки === */
+function applyFilters(){
+  const q = st.q.trim().toLowerCase();
+  let v = st.rows.filter(r=>{
+    if(st.brand && r.brand!==st.brand) return false;
+    if(st.cat && r.cat!==st.cat) return false;
+    if(st.min!=null && Number.isFinite(r.price) && r.price<st.min) return false;
+    if(st.max!=null && Number.isFinite(r.price) && r.price>st.max) return false;
     if(q){
-      const t=(x.brand+' '+x.category+' '+x.title+' '+(x.desc||'')).toLowerCase();
-      if(!t.includes(q)) return false;
+      const hay=(r.brand+' '+r.cat+' '+r.name+' '+(r.note||'')+' '+(Number.isFinite(r.price)?r.price:'' )).toLowerCase();
+      if(!hay.includes(q)) return false;
     }
     return true;
   });
-  st.view = filtered.slice().sort((a,b)=>{
-    const {k,dir}=st.sort;
-    if(k==='price') return dir*(a.price-b.price);
+
+  const {k,dir}=st.sort;
+  v.sort((a,b)=>{
+    if(k==='price'){
+      const av=Number.isFinite(a.price)?a.price:Infinity;
+      const bv=Number.isFinite(b.price)?b.price:Infinity;
+      return dir*(av-bv);
+    }
     return dir*String(a[k]).localeCompare(String(b[k]),'ru');
   });
+
+  st.view=v;
   render();
 }
+
+/* === Рендер таблицы === */
 function render(){
-  tb.innerHTML = st.view.map(x=>`
+  const tb = $('#tbl tbody');
+  const fmt = n => Number.isFinite(n) ? n.toLocaleString('ru-RU') : '—';
+  tb.innerHTML = st.view.length ? st.view.map(r=>`
     <tr>
-      <td><span class="chip">${esc(x.brand||'—')}</span></td>
-      <td>${esc(x.category||'—')}</td>
-      <td>${mark((x.title||'—') + (x.desc? ' — '+x.desc:''), st.q)}</td>
-      <td class="price">${x.price?rub(x.price):'—'}</td>
-    </tr>`).join('') || `<tr><td colspan="4" class="muted" style="text-align:center;padding:18px">Ничего не найдено</td></tr>`;
-  stats.textContent = `Найдено: ${st.view.length} из ${st.rows.length}`;
-}
-function attachSort(){
-  $$('th[data-k]').forEach(th=>{
-    th.addEventListener('click', ()=>{
-      const k = th.dataset.k;
-      st.sort = (st.sort.k===k) ? {k,dir:-st.sort.dir} : {k,dir:1};
-      filterSortRender();
-    });
+      <td>${esc(r.brand)}</td>
+      <td>${esc(r.cat)}</td>
+      <td>${esc(r.name)}${r.note?`<div class="note">${esc(r.note)}</div>`:''}</td>
+      <td class="price">${fmt(r.price)}</td>
+      <td><a class="wa" target="_blank" rel="noopener" href="${waLink(`${r.brand} ${r.name} — ${fmt(r.price)} ₽`)}">Заказать</a></td>
+    </tr>
+  `).join('') : `<tr><td colspan="5" style="text-align:center;color:#666;padding:18px">Ничего не найдено</td></tr>`;
+
+  $('#stats').textContent = `Найдено: ${st.view.length} из ${st.rows.length}`;
+  // обновить индикаторы сортировки
+  $$('#tbl thead th.sortable').forEach(th=>{
+    th.dataset.dir = (th.dataset.k===st.sort.k) ? String(st.sort.dir) : '';
   });
 }
-function initFilters(){
-  // заполняем списки брендов/категорий из данных
-  const brands=[...new Set(st.rows.map(x=>x.brand).filter(Boolean))].sort();
-  const cats=[...new Set(st.rows.map(x=>x.category).filter(Boolean))].sort();
-  const brandSel=$('#brand'), catSel=$('#cat');
-  brands.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; brandSel.appendChild(o); });
-  cats.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; catSel.appendChild(o); });
-}
-function initUI(){
-  $('#apply').addEventListener('click', apply);
-  $('#reset').addEventListener('click', resetAll);
-  $('#q').addEventListener('input', apply);
-  $('#minp').addEventListener('change', apply);
-  $('#maxp').addEventListener('change', apply);
-  attachSort();
+
+/* === События UI === */
+function bindUI(){
+  $('#apply').onclick = ()=>{
+    st.q=$('#q').value; st.brand=$('#brand').value; st.cat=$('#cat').value;
+    st.min=$('#minp').value?+$('#minp').value:null; st.max=$('#maxp').value?+$('#maxp').value:null;
+    applyFilters();
+  };
+  $('#reset').onclick = ()=>{
+    $('#q').value=''; $('#brand').value=''; $('#cat').value=''; $('#minp').value=''; $('#maxp').value='';
+    st.q=''; st.brand=''; st.cat=''; st.min=null; st.max=null; st.sort={k:'price',dir:1};
+    applyFilters();
+  };
+  $('#q').addEventListener('input', ()=>{ st.q=$('#q').value; applyFilters(); });
+  $$('#tbl thead th.sortable').forEach(th=>{
+    th.onclick = ()=>{ const k=th.dataset.k; st.sort = (st.sort.k===k)? {k,dir:-st.sort.dir} : {k,dir:1}; applyFilters(); };
+  });
 }
 
-/* ======= Старт ======= */
-initUI();
+/* === Старт === */
+bindUI();
 loadData();
 </script>
 </body>
