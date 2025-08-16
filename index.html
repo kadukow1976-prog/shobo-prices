@@ -5,17 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Прайс с поиском — УграРемКомп</title>
 <style>
-  :root{
-    --bg:#f6f7f9;--card:#fff;--text:#111;--muted:#6b7280;--line:#e5e7eb;--chip:#eef2ff;
-  }
+  :root{--bg:#f6f7f9;--card:#fff;--text:#111;--muted:#6b7280;--line:#e5e7eb;--chip:#eef2ff}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
   .wrap{max-width:1100px;margin:0 auto;padding:20px}
   h1{margin:0 0 12px;font-size:22px}
   .panel{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 16px}
-  .panel input,.panel select,.panel button{
-    background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px
-  }
+  .panel input,.panel select,.panel button{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
   .panel input[type="number"]{width:120px}
   .panel input[type="text"]{min-width:260px;flex:1}
   .panel button{cursor:pointer}
@@ -41,12 +37,8 @@
 
   <div class="panel card">
     <input id="q" type="text" placeholder="Поиск: бренд / услуга / описание">
-    <select id="brand">
-      <option value="">Все бренды</option>
-    </select>
-    <select id="cat">
-      <option value="">Все категории</option>
-    </select>
+    <select id="brand"><option value="">Все бренды</option></select>
+    <select id="cat"><option value="">Все категории</option></select>
     <input id="minp" type="number" inputmode="numeric" placeholder="от ₽">
     <input id="maxp" type="number" inputmode="numeric" placeholder="до ₽">
     <button id="apply">Фильтр</button>
@@ -71,44 +63,18 @@
 </div>
 
 <script>
-/* ==== ДАННЫЕ (редактируй здесь) ==== */
-const DATA = [
-  // Смартфоны — общие
-  {brand:'Разные', category:'Смартфоны', title:'Замена экрана (LCD/OLED) — модуль в сборе', desc:'Полная замена дисплейного модуля', price:1500},
-  {brand:'Разные', category:'Смартфоны', title:'Замена сенсорного стекла', desc:'Только если доступно отдельно стекло', price:1200},
-  {brand:'Разные', category:'Смартфоны', title:'Замена аккумулятора', desc:'Оригинал/аналог под модель', price:1000},
-  {brand:'Разные', category:'Смартфоны', title:'Замена разъёма зарядки (пайка/модуль)', desc:'USB Type-C / Lightning / microUSB', price:1000},
-  {brand:'Разные', category:'Смартфоны', title:'Замена слухового динамика', desc:'Плохо слышно в разговоре', price:1000},
-  {brand:'Разные', category:'Смартфоны', title:'Замена полифонического динамика', desc:'Нет звука уведомлений/звонка', price:1000},
-  {brand:'Разные', category:'Смартфоны', title:'Замена микрофона', desc:'Не работает запись/голосовой ввод', price:1000},
-  {brand:'Разные', category:'Смартфоны', title:'Замена камеры (задняя/фронтальная)', desc:'Модуль камеры', price:1000},
-  {brand:'Разные', category:'Смартфоны', title:'Замена кнопок (Питание/Громкость/Home)', desc:'Шлейф/кнопка', price:1000},
-  {brand:'Разные', category:'Смартфоны', title:'Ремонт системной платы (пайка)', desc:'Обрыв цепей, замыкание', price:2500},
-  {brand:'Разные', category:'Смартфоны', title:'Восстановление после воды', desc:'Чистка, сушка, диагностика', price:2500},
+/* ======= НАСТРОЙКА CSV (твоя ссылка Google Sheets) ======= */
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQWvp61TLX1tVmw7o34TY2Qjde4r-343ELRv14YnbrkSC0z7MAQse2lFVzWk2HcePyCfRfEIQ4jVh09/pub?gid=0&single=true&output=csv';
 
-  // Примеры по брендам
-  {brand:'Apple', category:'Смартфоны', title:'iPhone 11 — замена дисплея (модуль)', desc:'IPS модуль', price:7500},
-  {brand:'Apple', category:'Смартфоны', title:'iPhone 11 — замена аккумулятора', desc:'Оригинал/аналог', price:3500},
-  {brand:'Apple', category:'Смартфоны', title:'iPhone XR — замена дисплея', desc:'модуль', price:6800},
-
-  {brand:'Samsung', category:'Смартфоны', title:'Galaxy A51 — замена дисплея (модуль)', desc:'Super AMOLED', price:6000},
-  {brand:'Samsung', category:'Смартфоны', title:'Galaxy A51 — замена аккумулятора', desc:'', price:2800},
-  {brand:'Samsung', category:'Смартфоны', title:'Galaxy A52 — замена дисплея', desc:'', price:7500},
-
-  {brand:'Xiaomi', category:'Смартфоны', title:'Redmi Note 9 — замена стекла', desc:'Локальная переклейка', price:4000},
-  {brand:'Xiaomi', category:'Смартфоны', title:'Redmi Note 9 — замена аккумулятора', desc:'', price:2500},
-  {brand:'Xiaomi', category:'Смартфоны', title:'Mi 11 — замена дисплея', desc:'AMOLED', price:11000},
-
-  // Ноутбуки / ПК
-  {brand:'Ноутбуки', category:'Ноутбуки', title:'Чистка охлаждения + замена термопасты', desc:'Полная разборка, чистка, сборка', price:1500},
-  {brand:'Ноутбуки', category:'Ноутбуки', title:'Замена клавиатуры', desc:'Модуль/подложка', price:2000},
-  {brand:'Ноутбуки', category:'Ноутбуки', title:'Замена разъёма питания (пайка)', desc:'DC-jack', price:2200},
-  {brand:'Ноутбуки', category:'Ноутбуки', title:'Установка Windows 10/11', desc:'С драйверами и базовой настройкой', price:1200},
-  {brand:'ПК', category:'Компьютеры', title:'Диагностика ПК/ноутбука', desc:'При согласии на ремонт — бесплатно', price:0},
-  {brand:'ПК', category:'Компьютеры', title:'Замена/установка SSD/HDD', desc:'С переносом данных при возможности', price:800},
+/* ======= РЕЗЕРВНЫЕ ДАННЫЕ (если CSV недоступен) ======= */
+const FALLBACK = [
+  {brand:'Разные',category:'Смартфоны',title:'Замена экрана (LCD/OLED) — модуль в сборе',desc:'Полная замена дисплейного модуля',price:1500},
+  {brand:'Apple',category:'Смартфоны',title:'iPhone 11 — замена дисплея (модуль)',desc:'IPS модуль',price:7500},
+  {brand:'Samsung',category:'Смартфоны',title:'Galaxy A51 — замена аккумулятора',desc:'',price:2800},
+  {brand:'Ноутбуки',category:'Ноутбуки',title:'Чистка охлаждения + термопаста',desc:'',price:1500},
 ];
-/* ================================= */
 
+/* ======= СОСТОЯНИЕ ======= */
 const st = { q:'', brand:'', cat:'', min:null, max:null, sort:{k:'price',dir:1}, view:[], rows:[] };
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
@@ -119,6 +85,67 @@ const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':
 const rub = n => (n??0).toLocaleString('ru-RU')+' ₽';
 function mark(text,q){ if(!q) return esc(text); const re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'); return esc(text).replace(re,m=>`<mark>${m}</mark>`); }
 
+/* ======= CSV PARSER ======= */
+function parseCSV(text){
+  const rows=[]; let i=0, cur='', row=[], q=false;
+  const push=()=>{row.push(cur);cur=''};
+  const end=()=>{push();rows.push(row);row=[]};
+  while(i<text.length){
+    const c=text[i++];
+    if(q){
+      if(c=='"' && text[i]=='"'){cur+='"';i++;} else if(c=='"'){q=false;} else {cur+=c;}
+    }else{
+      if(c=='"'){q=true;}
+      else if(c==','){push();}
+      else if(c=='\n'){end();}
+      else if(c!='\r'){cur+=c;}
+    }
+  }
+  if(cur.length||row.length) end();
+  return rows;
+}
+function csvToObjects(rows){
+  if(!rows.length) return [];
+  const head = rows[0].map(s=>s.trim().toLowerCase());
+  const idx = {
+    brand: head.indexOf('brand'),
+    category: head.indexOf('cat')>-1? head.indexOf('cat') : head.indexOf('category'),
+    title: head.indexOf('name'),
+    price: head.indexOf('price'),
+    desc: head.indexOf('note')
+  };
+  const out=[];
+  for(let r=1;r<rows.length;r++){
+    const x=rows[r];
+    if(!x || !x.length) continue;
+    const obj={
+      brand: x[idx.brand]||'',
+      category: x[idx.category]||'',
+      title: x[idx.title]||'',
+      price: Number(String(x[idx.price]||'').replace(/\s/g,''))||0,
+      desc: x[idx.desc]||''
+    };
+    if(obj.title) out.push(obj);
+  }
+  return out;
+}
+
+/* ======= Загрузка данных ======= */
+async function loadData(){
+  try{
+    const res = await fetch(CSV_URL,{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const txt = await res.text();
+    const arr = csvToObjects(parseCSV(txt));
+    st.rows = arr.length ? arr : FALLBACK;
+  }catch(e){
+    st.rows = FALLBACK;
+  }
+  initFilters();
+  filterSortRender();
+}
+
+/* ======= UI/Фильтры/Сортировка/Рендер ======= */
 function apply(){
   st.q = $('#q').value.trim().toLowerCase();
   st.brand = $('#brand').value.trim();
@@ -132,10 +159,9 @@ function resetAll(){
   st.q=''; st.brand=''; st.cat=''; st.min=null; st.max=null; st.sort={k:'price',dir:1};
   filterSortRender();
 }
-
 function filterSortRender(){
   const q = st.q;
-  const filtered = DATA.filter(x=>{
+  const filtered = st.rows.filter(x=>{
     if(st.brand && x.brand!==st.brand) return false;
     if(st.cat && x.category!==st.cat) return false;
     if(st.min!=null && x.price < st.min) return false;
@@ -153,130 +179,45 @@ function filterSortRender(){
   });
   render();
 }
-
 function render(){
   tb.innerHTML = st.view.map(x=>`
     <tr>
-      <td><span class="chip">${esc(x.brand)}</span></td>
-      <td>${esc(x.category)}</td>
-      <td>${mark(x.title+(x.desc? ' — '+x.desc:''), st.q)}</td>
-      <td class="price">${rub(x.price)}</td>
+      <td><span class="chip">${esc(x.brand||'—')}</span></td>
+      <td>${esc(x.category||'—')}</td>
+      <td>${mark((x.title||'—') + (x.desc? ' — '+x.desc:''), st.q)}</td>
+      <td class="price">${x.price?rub(x.price):'—'}</td>
     </tr>`).join('') || `<tr><td colspan="4" class="muted" style="text-align:center;padding:18px">Ничего не найдено</td></tr>`;
-  stats.textContent = `Найдено: ${st.view.length} из ${DATA.length}`;
+  stats.textContent = `Найдено: ${st.view.length} из ${st.rows.length}`;
 }
-
 function attachSort(){
   $$('th[data-k]').forEach(th=>{
     th.addEventListener('click', ()=>{
       const k = th.dataset.k;
-      if(st.sort.k===k){ st.sort.dir*=-1 } else { st.sort={k,dir:1} }
+      st.sort = (st.sort.k===k) ? {k,dir:-st.sort.dir} : {k,dir:1};
       filterSortRender();
     });
   });
 }
-
-function init(){
-  // заполняем списки брендов/категорий из DATA
-  const brands=[...new Set(DATA.map(x=>x.brand))].sort();
-  const cats=[...new Set(DATA.map(x=>x.category))].sort();
-  brands.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; $('#brand').appendChild(o); });
-  cats.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; $('#cat').appendChild(o); });
-
+function initFilters(){
+  // заполняем списки брендов/категорий из данных
+  const brands=[...new Set(st.rows.map(x=>x.brand).filter(Boolean))].sort();
+  const cats=[...new Set(st.rows.map(x=>x.category).filter(Boolean))].sort();
+  const brandSel=$('#brand'), catSel=$('#cat');
+  brands.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; brandSel.appendChild(o); });
+  cats.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; catSel.appendChild(o); });
+}
+function initUI(){
   $('#apply').addEventListener('click', apply);
   $('#reset').addEventListener('click', resetAll);
   $('#q').addEventListener('input', apply);
   $('#minp').addEventListener('change', apply);
   $('#maxp').addEventListener('change', apply);
   attachSort();
-  filterSortRender();
 }
-init();
+
+/* ======= Старт ======= */
+initUI();
+loadData();
 </script>
 </body>
-</html>
-const st = { q:'', brand:'', cat:'', min:null, max:null, sort:{k:'price',dir:1}, view:[], rows:[] };
-const $ = (s, r=document)=>r.querySelector(s);
-const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
-const tb = $('#tbl tbody');
-const stats = $('#stats');
-
-const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-const rub = n => (n??0).toLocaleString('ru-RU')+' ₽';
-function mark(text,q){ if(!q) return esc(text); const re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'); return esc(text).replace(re,m=>`<mark>${m}</mark>`); }
-
-function apply(){
-  st.q = $('#q').value.trim().toLowerCase();
-  st.brand = $('#brand').value.trim();
-  st.cat = $('#cat').value.trim();
-  st.min = $('#minp').value ? Number($('#minp').value) : null;
-  st.max = $('#maxp').value ? Number($('#maxp').value) : null;
-  filterSortRender();
-}
-function resetAll(){
-  ['q','brand','cat','minp','maxp'].forEach(id=>$('#'+id).value='');
-  st.q=''; st.brand=''; st.cat=''; st.min=null; st.max=null; st.sort={k:'price',dir:1};
-  filterSortRender();
-}
-
-function filterSortRender(){
-  const q = st.q;
-  const filtered = DATA.filter(x=>{
-    if(st.brand && x.brand!==st.brand) return false;
-    if(st.cat && x.category!==st.cat) return false;
-    if(st.min!=null && x.price < st.min) return false;
-    if(st.max!=null && x.price > st.max) return false;
-    if(q){
-      const t=(x.brand+' '+x.category+' '+x.title+' '+(x.desc||'')).toLowerCase();
-      if(!t.includes(q)) return false;
-    }
-    return true;
-  });
-  st.view = filtered.slice().sort((a,b)=>{
-    const {k,dir}=st.sort;
-    if(k==='price') return dir*(a.price-b.price);
-    return dir*String(a[k]).localeCompare(String(b[k]),'ru');
-  });
-  render();
-}
-
-function render(){
-  tb.innerHTML = st.view.map(x=>`
-    <tr>
-      <td><span class="chip">${esc(x.brand)}</span></td>
-      <td>${esc(x.category)}</td>
-      <td>${mark(x.title+(x.desc? ' — '+x.desc:''), st.q)}</td>
-      <td class="price">${rub(x.price)}</td>
-    </tr>`).join('') || `<tr><td colspan="4" class="muted" style="text-align:center;padding:18px">Ничего не найдено</td></tr>`;
-  stats.textContent = `Найдено: ${st.view.length} из ${DATA.length}`;
-}
-
-function attachSort(){
-  $$('th[data-k]').forEach(th=>{
-    th.addEventListener('click', ()=>{
-      const k = th.dataset.k;
-      if(st.sort.k===k){ st.sort.dir*=-1 } else { st.sort={k,dir:1} }
-      filterSortRender();
-    });
-  });
-}
-
-function init(){
-  // заполняем списки брендов/категорий из DATA
-  const brands=[...new Set(DATA.map(x=>x.brand))].sort();
-  const cats=[...new Set(DATA.map(x=>x.category))].sort();
-  brands.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; $('#brand').appendChild(o); });
-  cats.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; $('#cat').appendChild(o); });
-
-  $('#apply').addEventListener('click', apply);
-  $('#reset').addEventListener('click', resetAll);
-  $('#q').addEventListener('input', apply);
-  $('#minp').addEventListener('change', apply);
-  $('#maxp').addEventListener('change', apply);
-  attachSort();
-  filterSortRender();
-}
-init();
-</script>
-</body>
-</html>
 </html>
