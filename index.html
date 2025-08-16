@@ -194,4 +194,89 @@ init();
 </script>
 </body>
 </html>
+const st = { q:'', brand:'', cat:'', min:null, max:null, sort:{k:'price',dir:1}, view:[], rows:[] };
+const $ = (s, r=document)=>r.querySelector(s);
+const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+const tb = $('#tbl tbody');
+const stats = $('#stats');
+
+const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const rub = n => (n??0).toLocaleString('ru-RU')+' ₽';
+function mark(text,q){ if(!q) return esc(text); const re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'); return esc(text).replace(re,m=>`<mark>${m}</mark>`); }
+
+function apply(){
+  st.q = $('#q').value.trim().toLowerCase();
+  st.brand = $('#brand').value.trim();
+  st.cat = $('#cat').value.trim();
+  st.min = $('#minp').value ? Number($('#minp').value) : null;
+  st.max = $('#maxp').value ? Number($('#maxp').value) : null;
+  filterSortRender();
+}
+function resetAll(){
+  ['q','brand','cat','minp','maxp'].forEach(id=>$('#'+id).value='');
+  st.q=''; st.brand=''; st.cat=''; st.min=null; st.max=null; st.sort={k:'price',dir:1};
+  filterSortRender();
+}
+
+function filterSortRender(){
+  const q = st.q;
+  const filtered = DATA.filter(x=>{
+    if(st.brand && x.brand!==st.brand) return false;
+    if(st.cat && x.category!==st.cat) return false;
+    if(st.min!=null && x.price < st.min) return false;
+    if(st.max!=null && x.price > st.max) return false;
+    if(q){
+      const t=(x.brand+' '+x.category+' '+x.title+' '+(x.desc||'')).toLowerCase();
+      if(!t.includes(q)) return false;
+    }
+    return true;
+  });
+  st.view = filtered.slice().sort((a,b)=>{
+    const {k,dir}=st.sort;
+    if(k==='price') return dir*(a.price-b.price);
+    return dir*String(a[k]).localeCompare(String(b[k]),'ru');
+  });
+  render();
+}
+
+function render(){
+  tb.innerHTML = st.view.map(x=>`
+    <tr>
+      <td><span class="chip">${esc(x.brand)}</span></td>
+      <td>${esc(x.category)}</td>
+      <td>${mark(x.title+(x.desc? ' — '+x.desc:''), st.q)}</td>
+      <td class="price">${rub(x.price)}</td>
+    </tr>`).join('') || `<tr><td colspan="4" class="muted" style="text-align:center;padding:18px">Ничего не найдено</td></tr>`;
+  stats.textContent = `Найдено: ${st.view.length} из ${DATA.length}`;
+}
+
+function attachSort(){
+  $$('th[data-k]').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const k = th.dataset.k;
+      if(st.sort.k===k){ st.sort.dir*=-1 } else { st.sort={k,dir:1} }
+      filterSortRender();
+    });
+  });
+}
+
+function init(){
+  // заполняем списки брендов/категорий из DATA
+  const brands=[...new Set(DATA.map(x=>x.brand))].sort();
+  const cats=[...new Set(DATA.map(x=>x.category))].sort();
+  brands.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; $('#brand').appendChild(o); });
+  cats.forEach(v=>{ const o=document.createElement('option'); o.textContent=v; $('#cat').appendChild(o); });
+
+  $('#apply').addEventListener('click', apply);
+  $('#reset').addEventListener('click', resetAll);
+  $('#q').addEventListener('input', apply);
+  $('#minp').addEventListener('change', apply);
+  $('#maxp').addEventListener('change', apply);
+  attachSort();
+  filterSortRender();
+}
+init();
+</script>
+</body>
+</html>
 </html>
