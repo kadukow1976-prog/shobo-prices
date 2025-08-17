@@ -1,37 +1,45 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Узнать стоимость ремонта — УграРемКомп</title>
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--text:#1f2328;--muted:#6b7280;--line:#e5e7eb;--brand:#19c37d}
+:root{
+  --bg:#f6f7f9;--card:#fff;--text:#1f2328;--muted:#6b7280;
+  --line:#e5e7eb;--brand:#19c37d;--accent:#111;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
-.wrap{max-width:860px;margin:0 auto;padding:18px}
-.header{display:flex;align-items:center;gap:12px}
-.header h1{font-size:clamp(22px,6vw,30px);margin:0}
-.header .spacer{flex:1}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  padding:10px 14px;border-radius:10px;border:1px solid var(--brand);
-  background:var(--brand);color:#fff;text-decoration:none;font-weight:700}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:18px}
+.header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.header h1{margin:0;font-size:clamp(22px,6vw,30px)}
+.header .sp{flex:1 1 auto}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;
+     background:var(--brand);border:1px solid var(--brand);color:#fff;text-decoration:none;font-weight:700}
 .btn:active{transform:translateY(1px)}
+.btn.w{background:#25D366;border-color:#25D366}
 .search{margin:14px 0 6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
 .search input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.controls .btn.small{padding:8px 12px;font-weight:600}
 .hint{color:var(--muted);font-size:13px;margin:8px 2px 0}
 .table{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:10px;overflow:hidden}
 .table table{width:100%;border-collapse:collapse}
 .table th,.table td{padding:14px 12px;border-bottom:1px solid var(--line);vertical-align:top}
 .table th{background:#fafafa;text-align:left;color:#111;font-weight:700}
 .price{white-space:nowrap;text-align:right}
+.note{color:var(--muted);font-size:13px;margin-top:4px}
+.rowcall{white-space:nowrap;text-align:right}
 .counter{font-size:13px;color:var(--muted);margin-top:8px}
 .empty{padding:16px;color:var(--muted)}
-.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
-.small{font-size:13px}
-.hidden{display:none!important}
 .error{background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:12px;border-radius:10px;margin-top:10px}
 .copy{user-select:all;white-space:nowrap;overflow:auto;padding:8px;border:1px dashed var(--line);border-radius:8px;background:#fff}
-@media(max-width:480px){.btn{flex:1}}
+.hidden{display:none!important}
+@media(max-width:520px){
+  .btn{flex:1}
+  .rowcall .btn{padding:8px 10px}
+}
 </style>
 </head>
 <body>
@@ -39,16 +47,16 @@ body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 -apple-system
 
   <div class="header">
     <h1>Узнать стоимость ремонта</h1>
-    <div class="spacer"></div>
+    <div class="sp"></div>
     <a class="btn" href="tel:+79107116072" aria-label="Позвонить">Позвонить</a>
+    <a class="btn w" href="https://wa.me/79107116072?text=Здравствуйте%2C%20нужна%20консультация%20по%20ремонту" target="_blank" rel="noopener">WhatsApp</a>
   </div>
 
   <div class="search">
-    <input id="q" placeholder="Опишите проблему: «разбит экран», «не заряжается», «вирусы» …" autocomplete="off">
-    <div class="hint">Начните ввод (минимум 2 буквы) — покажем подходящие услуги и цены. Есть кнопка «Показать всё» ниже.</div>
+    <input id="q" placeholder="Опишите проблему: «разбит экран», «не заряжается», «вирусы» …" autocomplete="off" />
+    <div class="hint">Начните ввод (минимум 2 буквы) — покажем подходящие услуги и цены. Можно нажать «Показать всё».</div>
     <div class="controls">
-      <button id="showAll" class="btn small" type="button" style="background:#111;border-color:#111">Показать всё</button>
-      <a class="btn small" href="https://wa.me/79107116072?text=Здравствуйте%2C%20нужна%20консультация%20по%20ремонту" target="_blank" rel="noopener" style="background:#25D366;border-color:#25D366">WhatsApp</a>
+      <button id="showAll" class="btn small" type="button" style="background:var(--accent);border-color:var(--accent)">Показать всё</button>
     </div>
   </div>
 
@@ -57,115 +65,152 @@ body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 -apple-system
   <div class="table">
     <table>
       <thead>
-        <tr><th>Проблема</th><th class="price">Цена</th></tr>
+        <tr>
+          <th>Проблема</th>
+          <th class="price">Цена</th>
+          <th class="rowcall">Связаться</th>
+        </tr>
       </thead>
-      <tbody id="tbody"><tr><td class="empty" colspan="2">Введите запрос…</td></tr></tbody>
+      <tbody id="tbody">
+        <tr><td class="empty" colspan="3">Введите запрос…</td></tr>
+      </tbody>
     </table>
   </div>
 
   <div id="counter" class="counter">Загружено услуг: 0</div>
 
-  <!-- Подсказка для замены ссылки на CSV -->
-  <details class="small" style="margin-top:10px">
-    <summary class="hint">Где править ссылку на таблицу (админ-подсказка)</summary>
-    <div class="hint">Ниже текущая строка с URL CSV. При необходимости замените её в коде.</div>
+  <!-- Подсказка: где менять ссылку на CSV -->
+  <details style="margin-top:10px">
+    <summary class="hint">Админ-подсказка: ссылка на публикацию CSV</summary>
     <pre class="copy" id="csvLine"></pre>
   </details>
+
 </div>
 
 <script>
-// 1) УКАЖИ свою таблицу CSV (опубликованную как «Значения, разделённые запятыми»)
+/* ===== 1) ТВОЯ ПУБЛИКОВАННАЯ CSV-ССЫЛКА (Google Sheets → Файл → Публикация в интернет → CSV) ===== */
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBjrIZhKXqFtutZJChMn-zej9fqm679V6aMTW6pXqF19PivgbeYIO0mL_UiNx3WryYzyFxOcDwpPYh/pub?gid=0&single=true&output=csv";
 document.getElementById('csvLine').textContent = `const CSV_URL = "${CSV_URL}";`;
 
-// 2) Нормализация текста (поиск без регистров/ё/лишних пробелов)
+/* ===== 2) Нормализация текста для поиска ===== */
 const norm = s => (s||"").toString()
   .toLowerCase().replaceAll('ё','е')
   .replace(/[^\p{L}\p{N}\s\-_]/gu,' ')
-  .replace(/\s+/g,' ').trim();
+  .replace(/\s+/g,' ')
+  .trim();
 
-// 3) Простой парсер CSV (запятая или ;). Без кавычек внутри ячеек.
+/* ===== 3) Парсер CSV (запятая или точка с запятой) ===== */
 function parseCSV(txt){
-  const sep = txt.indexOf(';')>-1 && txt.indexOf(',')===-1 ? ';' : ',';
-  const rows = txt.trim().split(/\r?\n/).map(r=>r.split(sep).map(c=>c.trim()));
-  return rows;
+  const sep = (txt.indexOf(';')>-1 && txt.indexOf(',')===-1) ? ';' : ',';
+  return txt.trim().split(/\r?\n/).map(r => r.split(sep).map(c => c.trim()));
 }
 
-// 4) Состояние
-let DATA = [];        // [{name, price, raw}]
+/* ===== 4) Формат цен ===== */
+function fmtMoney(x){
+  if (x==null || x==="") return "";
+  const n = Number(String(x).replace(/\s|₽/g,'').replace(',', '.'));
+  if (!isFinite(n)) return String(x);
+  return n.toLocaleString('ru-RU') + " ₽";
+}
+function formatPrice(item){
+  // Приоритет: если есть явная "Цена" — показываем её. Иначе "Мин–Макс".
+  if (item.price) return item.price;
+  if (item.min || item.max){
+    const left = item.min ? fmtMoney(item.min).replace(' ₽','') : "от";
+    const right = item.max ? fmtMoney(item.max).replace(' ₽','') : "";
+    return right ? `${left}-${right} ₽` : `${left} ₽`;
+  }
+  return "";
+}
+
+/* ===== 5) Состояние ===== */
+let DATA = [];   // {name, nameN, price, min, max, note}
 let LOADED = false;
 
-// 5) Загрузка CSV с понятной ошибкой
+/* ===== 6) Загрузка CSV с обработкой ошибок ===== */
 async function loadCSV(){
   const errBox = document.getElementById('error');
   errBox.classList.add('hidden');
   try{
-    const res = await fetch(CSV_URL, {cache: "no-store"});
+    const res = await fetch(CSV_URL, {cache:"no-store"});
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const txt = await res.text();
     const rows = parseCSV(txt);
     if(!rows.length) throw new Error("Пустой CSV");
 
-    // ожидаем заголовки: Проблема, Цена  (остальные игнорируем)
     const head = rows[0].map(norm);
-    const iName = head.findIndex(h=>["проблема","наименование","название","что сломалось"].includes(h));
-    const iPrice = head.findIndex(h=>["цена","стоимость","цена, от"].includes(h));
-    if(iName===-1 || iPrice===-1){
-      throw new Error("В CSV нужны заголовки: «Проблема», «Цена»");
+
+    // поддерживаем разные варианты заголовков
+    const iName  = head.findIndex(h => ["проблема","наименование","название","что сломалось"].includes(h));
+    const iPrice = head.findIndex(h => ["цена","стоимость","цена, от","price"].includes(h));
+    const iMin   = head.findIndex(h => ["мин","min","минимум","минимальная","минимальная цена"].includes(h));
+    const iMax   = head.findIndex(h => ["макс","max","максимум","максимальная","максимальная цена"].includes(h));
+    const iNote  = head.findIndex(h => ["комментарий","примечание","note"].includes(h));
+
+    if (iName===-1 || (iPrice===-1 && iMin===-1 && iMax===-1)) {
+      throw new Error("В CSV нужны заголовки: «Проблема» и «Цена» (или «Мин/Макс»). Необяз.: «Комментарий».");
     }
 
-    DATA = rows.slice(1)
-      .filter(r=>r[iName] && r[iPrice])
-      .map(r=>({ name:r[iName], price:r[iPrice], nameN:norm(r[iName]), raw:r }));
+    DATA = rows.slice(1).map(r => {
+      const name = r[iName] || "";
+      const price = iPrice>-1 ? r[iPrice] : "";
+      const min = iMin>-1 ? r[iMin] : "";
+      const max = iMax>-1 ? r[iMax] : "";
+      const note = iNote>-1 ? r[iNote] : "";
+      return { name, nameN:norm(name), price, min, max, note };
+    }).filter(x => x.name);
 
     LOADED = true;
     document.getElementById('counter').textContent = `Загружено услуг: ${DATA.length}`;
-    // по умолчанию ничего не показываем — ждём ввода
-    render([]);
+    render([]); // по умолчанию пусто — ждём ввода
   }catch(e){
-    errBox.textContent = "Ошибка загрузки прайса: " + e.message + ". Проверьте публикацию таблицы как CSV и доступ по ссылке.";
+    errBox.textContent = "Ошибка загрузки прайса: " + e.message + ". Проверь публикацию таблицы как CSV и доступ по ссылке.";
     errBox.classList.remove('hidden');
     render([]);
   }
 }
 
-// 6) Рендер таблицы
+/* ===== 7) Рендер ===== */
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
 function render(list){
   const tb = document.getElementById('tbody');
   if(!list.length){
-    tb.innerHTML = `<tr><td class="empty" colspan="2">${LOADED ? "Ничего не найдено — попробуйте по-другому сформулировать" : "Введите запрос…"}</td></tr>`;
+    tb.innerHTML = `<tr><td class="empty" colspan="3">${LOADED ? "Ничего не найдено — попробуйте по-другому сформулировать" : "Введите запрос…"}</td></tr>`;
     return;
   }
-  tb.innerHTML = list.map(it=>(
-    `<tr><td>${escapeHtml(it.name)}</td><td class="price">${escapeHtml(it.price)}</td></tr>`
-  )).join('');
+  tb.innerHTML = list.map(it=>{
+    const priceView = escapeHtml(formatPrice(it)) || "—";
+    const noteView  = it.note ? `<div class="note">${escapeHtml(it.note)}</div>` : "";
+    return `<tr>
+      <td>${escapeHtml(it.name)}${noteView}</td>
+      <td class="price">${priceView}</td>
+      <td class="rowcall"><a class="btn" href="tel:+79107116072" aria-label="Позвонить по этой услуге">Позвонить</a></td>
+    </tr>`;
+  }).join('');
 }
-function escapeHtml(s){return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
 
-// 7) Поиск (минимум 2 символа), лимит 50 результатов
+/* ===== 8) Поиск (минимум 2 символа) ===== */
 function search(q){
   const n = norm(q);
-  if(n.length<2) { render([]); return; }
+  if(n.length<2){ render([]); return; }
   const words = n.split(' ');
-  const res = DATA.filter(it=>words.every(w=>it.nameN.includes(w))).slice(0,50);
+  const res = DATA.filter(it => words.every(w => it.nameN.includes(w))).slice(0,100);
   render(res);
 }
 
-// 8) Показать всё — по запросу
-function showAll(){
-  render(DATA.slice(0,200)); // чтобы не перегружать страницу
-}
+/* ===== 9) Показать всё (не больше 200 строк, чтобы не тормозило) ===== */
+function showAll(){ render(DATA.slice(0,200)); }
 
-// 9) Навешиваем события + debounce
+/* ===== 10) События + debounce ===== */
 const q = document.getElementById('q');
-let t; 
+let t;
 q.addEventListener('input', ()=>{
   clearTimeout(t);
   t = setTimeout(()=>search(q.value), 160);
 });
 document.getElementById('showAll').addEventListener('click', showAll);
 
-// 10) Погнали
+/* ===== 11) Пуск ===== */
 loadCSV();
 </script>
 </body>
