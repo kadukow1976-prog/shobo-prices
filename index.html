@@ -1,237 +1,198 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Прайс УграРемКомп — поиск и фильтры</title>
-<style>
-  :root{
-    --bg:#f6f7f9;--card:#fff;--text:#111;--muted:#6b7280;--line:#e5e7eb;
-    --accent:#0ea5e9;--accent2:#0369a1;--ok:#16a34a;--warn:#ef4444
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-  .wrap{max-width:1100px;margin:0 auto;padding:18px}
-  header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
-  h1{margin:0;font-size:clamp(22px,4.5vw,38px)}
-  .call{display:inline-flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--ok);color:#fff;text-decoration:none;font-weight:700}
-  .panel{display:grid;gap:10px;grid-template-columns:1.2fr 1fr 1fr .8fr .8fr auto auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
-  .panel input,.panel select,.panel button{height:42px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff}
-  .btn{background:var(--accent);color:#fff;border:none;font-weight:700;cursor:pointer}
-  .btn:hover{background:var(--accent2)}
-  .ghost{background:#fff;border:1px solid var(--line)}
-  .stats{grid-column:1/-1;color:var(--muted);font-size:13px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:12px;overflow:auto}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:top}
-  th{background:#fafafa;text-align:left;position:sticky;top:0}
-  th.sortable{user-select:none;cursor:pointer}
-  th.sortable::after{content:" ⇅";opacity:.4}
-  th.sortable[data-dir="1"]::after{content:" ↑";opacity:1}
-  th.sortable[data-dir="-1"]::after{content:" ↓";opacity:1}
-  td.price{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
-  td.note{color:var(--muted);font-size:12px}
-  tr:hover{background:#fcfcfc}
-  .err{margin-top:12px;padding:12px;border:1px solid #fecaca;background:#fff1f2;color:#991b1b;border-radius:10px}
-  .wa{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);text-decoration:none}
-  .wa:hover{border-color:var(--accent2)}
-  @media (max-width:980px){.panel{grid-template-columns:1fr 1fr 1fr;grid-auto-rows:auto}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Узнать стоимость ремонта — УграРемКомп</title>
+  <style>
+    :root{
+      --bg:#f7f7f8;--card:#fff;--text:#111;--muted:#667085;
+      --accent:#16a34a;--accent-press:#0f8a3d;--border:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif}
+    .container{max-width:900px;margin:0 auto;padding:16px}
+    .top{
+      display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 16px
+    }
+    h1{font-size:26px;margin:0}
+    .call{
+      display:inline-flex;align-items:center;gap:10px;
+      background:var(--accent);color:#fff;border:0;border-radius:12px;
+      padding:12px 18px;font-weight:600;text-decoration:none;
+      box-shadow:0 6px 14px rgba(22,163,74,.25)
+    }
+    .call:active{background:var(--accent-press)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+    .searchWrap{position:relative;margin-bottom:10px}
+    .search{width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:12px;font-size:16px}
+    .hint{color:var(--muted);font-size:13px;margin:4px 2px 10px}
+    .meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin:4px 2px 10px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:12px 10px;border-top:1px solid var(--border)}
+    th{font-weight:700;text-align:left;background:#fafafa}
+    td.price{white-space:nowrap;text-align:right;font-variant-numeric: tabular-nums}
+    .empty{padding:20px;text-align:center;color:var(--muted)}
+    .error{margin-top:12px;padding:12px;border:1px solid #fecaca;background:#fef2f2;border-radius:12px;color:#b91c1c}
+    /* плавающая кнопка на мобилке */
+    .fab{
+      position:fixed;right:16px;bottom:16px;z-index:3;
+      display:none
+    }
+    @media (max-width:680px){ .fab{display:block} }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Прайс УграРемКомп</h1>
-    <a class="call" href="tel:+79107116072">📞 Позвонить</a>
-  </header>
+  <div class="container">
+    <div class="top">
+      <h1>Узнать стоимость ремонта</h1>
+      <!-- ✅ поменяй номер при необходимости -->
+      <a class="call" href="tel:+79107116072" aria-label="Позвонить">
+        📞 Позвонить
+      </a>
+    </div>
 
-  <!-- Панель фильтров -->
-  <div class="panel">
-    <input id="q" placeholder="Поиск (бренд, категория, наименование, примечание, цена)">
-    <select id="brand"><option value="">Все бренды</option></select>
-    <select id="cat"><option value="">Все категории</option></select>
-    <input id="minp" type="number" inputmode="numeric" placeholder="от ₽">
-    <input id="maxp" type="number" inputmode="numeric" placeholder="до ₽">
-    <button id="apply" class="btn">Фильтр</button>
-    <button id="reset" class="ghost">Сброс</button>
-    <div class="stats" id="stats"></div>
+    <div class="card">
+      <div class="searchWrap">
+        <input id="searchInput" class="search"
+          placeholder="Опишите проблему: «разбит экран», «не заряжается», «установить Windows»…" />
+      </div>
+      <div class="meta">
+        <div id="found">Загружаем цены…</div>
+        <div id="updated"></div>
+      </div>
+
+      <div class="tableWrap">
+        <table aria-label="Прайс на услуги">
+          <thead>
+            <tr><th>Проблема</th><th class="price">Цена</th></tr>
+          </thead>
+          <tbody id="priceTable">
+            <tr><td colspan="2" class="empty">Загружаем…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="errorBox" class="error" style="display:none"></div>
+    </div>
   </div>
 
-  <!-- Таблица -->
-  <div class="card">
-    <table id="tbl">
-      <thead>
-        <tr>
-          <th class="sortable" data-k="brand">Бренд</th>
-          <th class="sortable" data-k="cat">Категория</th>
-          <th class="sortable" data-k="name">Наименование</th>
-          <th class="sortable price" data-k="price">Цена, от</th>
-          <th>Действие</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <!-- плавающая кнопка для мобильных -->
+  <a class="call fab" href="tel:+79107116072">📞 Позвонить</a>
 
-  <div id="error" class="err" style="display:none"></div>
-</div>
+  <script>
+    // ⚙️ ССЫЛКА НА ОПУБЛИКОВАННЫЙ CSV (Google Sheets → Файл → Опубликовать → Ссылка → CSV)
+    const CSV_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWvp61TLX1tVmw7o34TY2Qjde4r-343ELRv14YnbrkSC0z7MAQse2lFVzWk2HcePyCfRfEIQ4jVh09/pub?gid=0&single=true&output=csv";
 
-<script>
-/* === НАСТРОЙКИ === */
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWvp61TLX1tVmw7o34TY2Qjde4r-343ELRv14YnbrkSC0z7MAQse2lFVzWk2HcePyCfRfEIQ4jVh09/pub?gid=0&single=true&output=csv";
-const WA_PHONE = "79107116072"; // для кнопки WhatsApp
+    const $ = sel => document.querySelector(sel);
+    const table = $("#priceTable");
+    const found = $("#found");
+    const updated = $("#updated");
+    const errorBox = $("#errorBox");
+    const input = $("#searchInput");
 
-/* === УТИЛИТЫ === */
-const $ = (s, r=document)=>r.querySelector(s);
-const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
-const esc = s => String(s??'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-const toNum = v => {
-  if (typeof v==='number') return v;
-  const s=String(v||'').replace(/[^\d.,-]/g,'').replace(/\.(?=.*\.)/g,'').replace(',','.');
-  const n=Number(s); return Number.isFinite(n) ? n : NaN;
-};
-const waLink = txt => `https://wa.me/${WA_PHONE}?text=${encodeURIComponent('Здравствуйте! Интересует: ' + txt)}`;
+    let allRows = [];
 
-/* === CSV-парсер (кавычки, запятые внутри) === */
-function parseCSV(text){
-  const out=[]; let row=[], cur="", q=false;
-  for(let i=0;i<text.length;i++){
-    const c=text[i], n=text[i+1];
-    if(q){ if(c=='"'&&n=='"'){cur+='"';i++;} else if(c=='"'){q=false;} else cur+=c; }
-    else{ if(c=='"'){q=true;} else if(c==','){row.push(cur);cur="";}
-      else if(c=='\n'){row.push(cur);out.push(row);row=[];cur="";}
-      else if(c!='\r'){cur+=c;}
-    }
-  }
-  row.push(cur); out.push(row);
-  if(out.length && out[out.length-1].every(v=>v==="")) out.pop();
-  return out;
-}
-
-/* === Состояние === */
-const st={rows:[],view:[],sort:{k:'price',dir:1},q:'',brand:'',cat:'',min:null,max:null};
-
-/* === Загрузка данных === */
-async function loadData(){
-  try{
-    const r = await fetch(CSV_URL,{cache:'no-store'});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const txt = await r.text();
-    const rows = parseCSV(txt);
-    if(!rows.length) throw new Error('CSV пуст');
-
-    // ожидаемые русские заголовки
-    const hdr = rows[0].map(s=>String(s).trim().toLowerCase());
-    const m = {
-      brand: hdr.indexOf('бренд'),
-      cat:   hdr.indexOf('категория'),
-      name:  hdr.indexOf('наименование'),
-      price: hdr.indexOf('цена'),
-      note:  hdr.indexOf('примечание')
+    // Небольшой дебаунс, чтобы не перерисовывать таблицу на каждый символ
+    const debounce = (fn, ms=200) => {
+      let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
     };
-    if([m.brand,m.cat,m.name,m.price].some(i=>i<0)){
-      throw new Error('В CSV нужны заголовки: Бренд, Категория, Наименование, Цена (+ Примечание по желанию)');
+
+    // Аккуратный CSV-парсер (поддерживает кавычки и запятые внутри ячеек)
+    function parseCSV(text) {
+      const rows = []; let row = [], cell = "", quoted = false;
+      for (let i=0;i<text.length;i++) {
+        const c = text[i], n = text[i+1];
+        if (quoted) {
+          if (c === '"' && n === '"') { cell += '"'; i++; }
+          else if (c === '"') { quoted = false; }
+          else { cell += c; }
+        } else {
+          if (c === '"') quoted = true;
+          else if (c === ',') { row.push(cell); cell = ""; }
+          else if (c === '\n' || c === '\r') {
+            if (c === '\r' && n === '\n') i++;
+            row.push(cell); rows.push(row); row = []; cell = "";
+          } else { cell += c; }
+        }
+      }
+      if (cell.length || row.length) { row.push(cell); rows.push(row); }
+      return rows;
     }
 
-    st.rows = rows.slice(1)
-      .filter(r=>r.some(x=>String(x).trim()!==''))
-      .map(r=>({
-        brand: String(r[m.brand]||'').trim(),
-        cat:   String(r[m.cat]||'').trim(),
-        name:  String(r[m.name]||'').trim(),
-        price: toNum(r[m.price]),
-        note:  String(r[m.note]||'').trim()
-      }))
-      .filter(x=>x.name);
-
-    buildFilters(st.rows);
-    applyFilters();
-  }catch(e){
-    $('#error').style.display='';
-    $('#error').textContent='Ошибка загрузки прайса: '+e.message;
-  }
-}
-
-/* === Фильтры (автосписки из данных) === */
-function buildFilters(rows){
-  const brands=[...new Set(rows.map(x=>x.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
-  const cats  =[...new Set(rows.map(x=>x.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
-  const brandSel = $('#brand'), catSel = $('#cat');
-  for(const v of brands){ const o=document.createElement('option'); o.textContent=v; brandSel.appendChild(o); }
-  for(const v of cats){ const o=document.createElement('option'); o.textContent=v; catSel.appendChild(o); }
-}
-
-/* === Применение фильтров и сортировки === */
-function applyFilters(){
-  const q = st.q.trim().toLowerCase();
-  let v = st.rows.filter(r=>{
-    if(st.brand && r.brand!==st.brand) return false;
-    if(st.cat && r.cat!==st.cat) return false;
-    if(st.min!=null && Number.isFinite(r.price) && r.price<st.min) return false;
-    if(st.max!=null && Number.isFinite(r.price) && r.price>st.max) return false;
-    if(q){
-      const hay=(r.brand+' '+r.cat+' '+r.name+' '+(r.note||'')+' '+(Number.isFinite(r.price)?r.price:'' )).toLowerCase();
-      if(!hay.includes(q)) return false;
+    function formatRub(n) {
+      // допускаем "1000" или "1 000" в CSV
+      const num = Number(String(n).replace(/\s/g,'').replace(',', '.'));
+      if (isFinite(num)) {
+        return num.toLocaleString('ru-RU') + ' ₽';
+      }
+      return n || '';
     }
-    return true;
-  });
 
-  const {k,dir}=st.sort;
-  v.sort((a,b)=>{
-    if(k==='price'){
-      const av=Number.isFinite(a.price)?a.price:Infinity;
-      const bv=Number.isFinite(b.price)?b.price:Infinity;
-      return dir*(av-bv);
+    function render(data) {
+      table.innerHTML = "";
+      if (!data.length) {
+        table.innerHTML = `<tr><td colspan="2" class="empty">Ничего не найдено</td></tr>`;
+      } else {
+        const frag = document.createDocumentFragment();
+        for (const [problem, price] of data) {
+          if (!problem) continue;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${problem}</td><td class="price">${formatRub(price)}</td>`;
+          frag.appendChild(tr);
+        }
+        table.appendChild(frag);
+      }
+      found.textContent = `Найдено: ${data.length} из ${allRows.length}`;
     }
-    return dir*String(a[k]).localeCompare(String(b[k]),'ru');
-  });
 
-  st.view=v;
-  render();
-}
+    const doFilter = debounce(() => {
+      const q = input.value.trim().toLowerCase();
+      if (!q) { render(allRows); return; }
+      const filtered = allRows.filter(([problem]) =>
+        String(problem).toLowerCase().includes(q)
+      );
+      render(filtered);
+    }, 150);
 
-/* === Рендер таблицы === */
-function render(){
-  const tb = $('#tbl tbody');
-  const fmt = n => Number.isFinite(n) ? n.toLocaleString('ru-RU') : '—';
-  tb.innerHTML = st.view.length ? st.view.map(r=>`
-    <tr>
-      <td>${esc(r.brand)}</td>
-      <td>${esc(r.cat)}</td>
-      <td>${esc(r.name)}${r.note?`<div class="note">${esc(r.note)}</div>`:''}</td>
-      <td class="price">${fmt(r.price)}</td>
-      <td><a class="wa" target="_blank" rel="noopener" href="${waLink(`${r.brand} ${r.name} — ${fmt(r.price)} ₽`)}">Заказать</a></td>
-    </tr>
-  `).join('') : `<tr><td colspan="5" style="text-align:center;color:#666;padding:18px">Ничего не найдено</td></tr>`;
+    input.addEventListener("input", doFilter);
 
-  $('#stats').textContent = `Найдено: ${st.view.length} из ${st.rows.length}`;
-  // обновить индикаторы сортировки
-  $$('#tbl thead th.sortable').forEach(th=>{
-    th.dataset.dir = (th.dataset.k===st.sort.k) ? String(st.sort.dir) : '';
-  });
-}
+    async function load() {
+      try {
+        errorBox.style.display = "none";
+        found.textContent = "Загружаем цены…";
+        const res = await fetch(CSV_URL + "&_=" + Date.now(), {cache:"no-store"});
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const text = await res.text();
+        const rows = parseCSV(text);
 
-/* === События UI === */
-function bindUI(){
-  $('#apply').onclick = ()=>{
-    st.q=$('#q').value; st.brand=$('#brand').value; st.cat=$('#cat').value;
-    st.min=$('#minp').value?+$('#minp').value:null; st.max=$('#maxp').value?+$('#maxp').value:null;
-    applyFilters();
-  };
-  $('#reset').onclick = ()=>{
-    $('#q').value=''; $('#brand').value=''; $('#cat').value=''; $('#minp').value=''; $('#maxp').value='';
-    st.q=''; st.brand=''; st.cat=''; st.min=null; st.max=null; st.sort={k:'price',dir:1};
-    applyFilters();
-  };
-  $('#q').addEventListener('input', ()=>{ st.q=$('#q').value; applyFilters(); });
-  $$('#tbl thead th.sortable').forEach(th=>{
-    th.onclick = ()=>{ const k=th.dataset.k; st.sort = (st.sort.k===k)? {k,dir:-st.sort.dir} : {k,dir:1}; applyFilters(); };
-  });
-}
+        // Ожидаем заголовки: Проблема, Цена
+        const [h1, h2] = rows[0] || [];
+        const goodHeader =
+          (String(h1).trim().toLowerCase() === "проблема" &&
+           String(h2).trim().toLowerCase() === "цена");
 
-/* === Старт === */
-bindUI();
-loadData();
-</script>
+        if (!goodHeader)
+          throw new Error("В первой строке должны быть заголовки: «Проблема, Цена»");
+
+        // данные без заголовка + фильтр пустых строк
+        allRows = rows.slice(1).filter(r => r[0] && (r[1] !== undefined));
+        render(allRows);
+
+        // покажем, когда обновили
+        const dt = new Date();
+        updated.textContent = `Обновлено: ${dt.toLocaleDateString('ru-RU')} ${dt.toLocaleTimeString('ru-RU').slice(0,5)}`;
+      } catch (e) {
+        console.error(e);
+        errorBox.textContent = "Ошибка загрузки прайса: " + e.message;
+        errorBox.style.display = "block";
+        table.innerHTML = `<tr><td colspan="2" class="empty">Не удалось загрузить данные</td></tr>`;
+        found.textContent = "Найдено: 0";
+      }
+    }
+
+    load();
+  </script>
 </body>
 </html>
