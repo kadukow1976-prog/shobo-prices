@@ -1,197 +1,161 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Узнать стоимость ремонта — УграРемКомп</title>
-  <style>
-    :root{
-      --bg:#f7f7f8;--card:#fff;--text:#111;--muted:#667085;
-      --accent:#16a34a;--accent-press:#0f8a3d;--border:#e5e7eb;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif}
-    .container{max-width:900px;margin:0 auto;padding:16px}
-    .top{
-      display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 16px
-    }
-    h1{font-size:26px;margin:0}
-    .call{
-      display:inline-flex;align-items:center;gap:10px;
-      background:var(--accent);color:#fff;border:0;border-radius:12px;
-      padding:12px 18px;font-weight:600;text-decoration:none;
-      box-shadow:0 6px 14px rgba(22,163,74,.25)
-    }
-    .call:active{background:var(--accent-press)}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
-    .searchWrap{position:relative;margin-bottom:10px}
-    .search{width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:12px;font-size:16px}
-    .hint{color:var(--muted);font-size:13px;margin:4px 2px 10px}
-    .meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin:4px 2px 10px}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:12px 10px;border-top:1px solid var(--border)}
-    th{font-weight:700;text-align:left;background:#fafafa}
-    td.price{white-space:nowrap;text-align:right;font-variant-numeric: tabular-nums}
-    .empty{padding:20px;text-align:center;color:var(--muted)}
-    .error{margin-top:12px;padding:12px;border:1px solid #fecaca;background:#fef2f2;border-radius:12px;color:#b91c1c}
-    /* плавающая кнопка на мобилке */
-    .fab{
-      position:fixed;right:16px;bottom:16px;z-index:3;
-      display:none
-    }
-    @media (max-width:680px){ .fab{display:block} }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Узнать стоимость ремонта — УграРемКомп</title>
+<style>
+  :root{
+    --bg:#f6f7f9;--card:#fff;--text:#1f2328;--muted:#6b7280;--line:#e5e7eb;--brand:#16a34a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+  .wrap{max-width:860px;margin:0 auto;padding:20px}
+  h1{font-size:clamp(22px,3.6vw,32px);margin:0 0 14px}
+  .panel{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:10px 0 14px}
+  .input{flex:1 1 280px;min-width:260px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:10px;padding:12px 16px;cursor:pointer;user-select:none;white-space:nowrap}
+  .btn-call{background:var(--brand);color:#fff;font-weight:600}
+  .btn-call svg{width:18px;height:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#fafafa;text-align:left;color:#374151;font-weight:700}
+  td.price{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .muted{color:var(--muted);font-size:13px}
+  .error{color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;border-radius:12px;padding:12px 14px}
+  .counter{margin-top:10px}
+  .hide{display:none}
+  .copy{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:12px;background:#0f172a;color:#e2e8f0;
+        padding:10px 12px;border-radius:8px;overflow:auto}
+  .badge{display:inline-block;padding:4px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;color:#374151;background:#fff}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="top">
-      <h1>Узнать стоимость ремонта</h1>
-      <!-- ✅ поменяй номер при необходимости -->
-      <a class="call" href="tel:+79107116072" aria-label="Позвонить">
-        📞 Позвонить
+  <div class="wrap">
+    <div class="panel" style="justify-content:space-between;gap:14px">
+      <h1 style="margin:0">Узнать стоимость ремонта</h1>
+      <a class="btn btn-call" href="tel:+79107116072" title="Позвонить">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M22 16.92v2a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.09 1h2a2 2 0 0 1 2 1.72c.13.98.36 1.93.69 2.84a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.24-1.24a2 2 0 0 1 2.11-.45c.91.33 1.86.56 2.84.69A2 2 0 0 1 22 16.92Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Позвонить
       </a>
     </div>
 
-    <div class="card">
-      <div class="searchWrap">
-        <input id="searchInput" class="search"
-          placeholder="Опишите проблему: «разбит экран», «не заряжается», «установить Windows»…" />
-      </div>
-      <div class="meta">
-        <div id="found">Загружаем цены…</div>
-        <div id="updated"></div>
-      </div>
-
-      <div class="tableWrap">
-        <table aria-label="Прайс на услуги">
-          <thead>
-            <tr><th>Проблема</th><th class="price">Цена</th></tr>
-          </thead>
-          <tbody id="priceTable">
-            <tr><td colspan="2" class="empty">Загружаем…</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div id="errorBox" class="error" style="display:none"></div>
+    <div class="panel">
+      <input id="q" class="input" placeholder='Опишите проблему: «разбит экран», «не заряжается», «вирусы»'>
+      <span class="badge" id="badgeLoaded">Загружено: 0</span>
     </div>
+
+    <div id="err" class="error hide"></div>
+
+    <div class="card">
+      <table id="tbl">
+        <thead>
+          <tr><th>Проблема</th><th class="price">Цена</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="counter muted" id="counter">Найдено: 0</div>
+
+    <!-- Подсказка и место для быстрой правки ссылки -->
+    <details style="margin-top:16px">
+      <summary class="muted">Где править ссылку на таблицу (админ-подсказка)</summary>
+      <p class="muted">Ниже строка с URL CSV. При необходимости замените её на новую из Google Таблиц (Файл → Опубликовать в интернете → «Прайс» → «Значения, разделённые запятыми (CSV)»).</p>
+      <pre class="copy" id="csvLine"></pre>
+    </details>
   </div>
 
-  <!-- плавающая кнопка для мобильных -->
-  <a class="call fab" href="tel:+79107116072">📞 Позвонить</a>
+<script>
+  // <<< ВАЖНО: вставь сюда свою ссылку на CSV из Google Таблиц >>>
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBjrIZhKXqFtutZJChMn-zej9fqm679V6aMTW6pXqF19PivgbeYIO0mL_UiNx3WryYzyFxOcDwpPYh/pub?gid=0&single=true&output=csv
+  document.getElementById('csvLine').textContent = `const CSV_URL = "${CSV_URL}";`;
 
-  <script>
-    // ⚙️ ССЫЛКА НА ОПУБЛИКОВАННЫЙ CSV (Google Sheets → Файл → Опубликовать → Ссылка → CSV)
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBjrIZhKXqFtutZJChMn-zej9fqm679V6aMTW6pXqF19PivgbeYIO0mL_UiNx3WryYzyFxOcDwpPYh/pub?gid=0&single=true&output=csv";
+  // Нормализация текста для поиска
+  const norm = s => (s||"")
+    .toString()
+    .toLowerCase()
+    .replaceAll('ё','е')
+    .replace(/[^\p{L}\p{N}\s\-_.]/gu,' ')
+    .replace(/\s+/g,' ')
+    .trim();
 
-    const $ = sel => document.querySelector(sel);
-    const table = $("#priceTable");
-    const found = $("#found");
-    const updated = $("#updated");
-    const errorBox = $("#errorBox");
-    const input = $("#searchInput");
+  // Парсер CSV (простой, без кавычек внутри ячеек)
+  function parseCSV(txt){
+    const rows = txt.trim().split(/\r?\n/).map(r=>r.split(',').map(c=>c.trim()));
+    // Ожидаем заголовки: Проблема, Цена  (или problem, price)
+    const head = rows.shift().map(norm);
+    const iProblem = head.findIndex(h => /(проблем|name|наимен)/.test(h));
+    const iPrice   = head.findIndex(h => /(цен)/.test(h) || h==='price');
+    if(iProblem<0 || iPrice<0) throw new Error('В CSV должны быть столбцы «Проблема» и «Цена».');
 
-    let allRows = [];
+    return rows
+      .filter(r=>r.length)
+      .map(r=>{
+        const name = r[iProblem]||"";
+        const priceRaw = r[iPrice]||"";
+        const price = Number(String(priceRaw).replace(/\s+/g,'').replace(',', '.').replace(/[^0-9.]/g,''));
+        return { name, price: isFinite(price) ? price : null };
+      });
+  }
 
-    // Небольшой дебаунс, чтобы не перерисовывать таблицу на каждый символ
-    const debounce = (fn, ms=200) => {
-      let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
-    };
+  // Формат денег
+  const fmt = n => (n==null ? '—' : n.toLocaleString('ru-RU')) + ' ₽';
 
-    // Аккуратный CSV-парсер (поддерживает кавычки и запятые внутри ячеек)
-    function parseCSV(text) {
-      const rows = []; let row = [], cell = "", quoted = false;
-      for (let i=0;i<text.length;i++) {
-        const c = text[i], n = text[i+1];
-        if (quoted) {
-          if (c === '"' && n === '"') { cell += '"'; i++; }
-          else if (c === '"') { quoted = false; }
-          else { cell += c; }
-        } else {
-          if (c === '"') quoted = true;
-          else if (c === ',') { row.push(cell); cell = ""; }
-          else if (c === '\n' || c === '\r') {
-            if (c === '\r' && n === '\n') i++;
-            row.push(cell); rows.push(row); row = []; cell = "";
-          } else { cell += c; }
-        }
-      }
-      if (cell.length || row.length) { row.push(cell); rows.push(row); }
-      return rows;
+  // Рендер
+  const $tbody = document.querySelector('#tbl tbody');
+  const $count = document.getElementById('counter');
+  const $badge = document.getElementById('badgeLoaded');
+  function render(list){
+    $tbody.innerHTML = '';
+    for(const row of list){
+      const tr = document.createElement('tr');
+      const tdN = document.createElement('td');
+      tdN.textContent = row.name;
+      const tdP = document.createElement('td');
+      tdP.className = 'price';
+      tdP.textContent = fmt(row.price);
+      tr.append(tdN, tdP);
+      $tbody.appendChild(tr);
     }
+    $count.textContent = 'Найдено: ' + list.length;
+  }
 
-    function formatRub(n) {
-      // допускаем "1000" или "1 000" в CSV
-      const num = Number(String(n).replace(/\s/g,'').replace(',', '.'));
-      if (isFinite(num)) {
-        return num.toLocaleString('ru-RU') + ' ₽';
-      }
-      return n || '';
+  // Фильтр
+  let ALL = [];
+  function applyFilter(){
+    const q = norm(document.getElementById('q').value);
+    if(!q){ render(ALL); return; }
+    const words = q.split(' ');
+    const out = ALL.filter(r=>{
+      const t = norm(r.name);
+      return words.every(w => t.includes(w));
+    });
+    render(out);
+  }
+
+  // Debounce
+  let tmr;
+  document.getElementById('q').addEventListener('input', ()=>{
+    clearTimeout(tmr); tmr = setTimeout(applyFilter, 120);
+  });
+
+  // Загрузка CSV
+  (async ()=>{
+    const $err = document.getElementById('err');
+    try{
+      const res = await fetch(CSV_URL, {cache:'no-store'});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const txt = await res.text();
+      ALL = parseCSV(txt);
+      render(ALL);
+      $badge.textContent = 'Загружено: ' + ALL.length;
+    }catch(e){
+      $err.textContent = 'Ошибка загрузки прайса: ' + e.message + '. Проверь ссылку публикации CSV.';
+      $err.classList.remove('hide');
     }
-
-    function render(data) {
-      table.innerHTML = "";
-      if (!data.length) {
-        table.innerHTML = `<tr><td colspan="2" class="empty">Ничего не найдено</td></tr>`;
-      } else {
-        const frag = document.createDocumentFragment();
-        for (const [problem, price] of data) {
-          if (!problem) continue;
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${problem}</td><td class="price">${formatRub(price)}</td>`;
-          frag.appendChild(tr);
-        }
-        table.appendChild(frag);
-      }
-      found.textContent = `Найдено: ${data.length} из ${allRows.length}`;
-    }
-
-    const doFilter = debounce(() => {
-      const q = input.value.trim().toLowerCase();
-      if (!q) { render(allRows); return; }
-      const filtered = allRows.filter(([problem]) =>
-        String(problem).toLowerCase().includes(q)
-      );
-      render(filtered);
-    }, 150);
-
-    input.addEventListener("input", doFilter);
-
-    async function load() {
-      try {
-        errorBox.style.display = "none";
-        found.textContent = "Загружаем цены…";
-        const res = await fetch(CSV_URL + "&_=" + Date.now(), {cache:"no-store"});
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const text = await res.text();
-        const rows = parseCSV(text);
-
-        // Ожидаем заголовки: Проблема, Цена
-        const [h1, h2] = rows[0] || [];
-        const goodHeader =
-          (String(h1).trim().toLowerCase() === "проблема" &&
-           String(h2).trim().toLowerCase() === "цена");
-
-        if (!goodHeader)
-          throw new Error("В первой строке должны быть заголовки: «Проблема, Цена»");
-
-        // данные без заголовка + фильтр пустых строк
-        allRows = rows.slice(1).filter(r => r[0] && (r[1] !== undefined));
-        render(allRows);
-
-        // покажем, когда обновили
-        const dt = new Date();
-        updated.textContent = `Обновлено: ${dt.toLocaleDateString('ru-RU')} ${dt.toLocaleTimeString('ru-RU').slice(0,5)}`;
-      } catch (e) {
-        console.error(e);
-        errorBox.textContent = "Ошибка загрузки прайса: " + e.message;
-        errorBox.style.display = "block";
-        table.innerHTML = `<tr><td colspan="2" class="empty">Не удалось загрузить данные</td></tr>`;
-        found.textContent = "Найдено: 0";
-      }
-    }
-
-    load();
-  </script>
+  })();
+</script>
 </body>
 </html>
